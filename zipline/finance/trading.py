@@ -17,7 +17,8 @@ import pytz
 import logbook
 import datetime
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
+import bisect
 
 import zipline.protocol as zp
 from zipline.finance.slippage import (
@@ -67,7 +68,7 @@ class TradingEnvironment(object):
     ):
 
         self.trading_days = []
-        self.trading_day_map = {}
+        self.trading_day_map = OrderedDict()
         self.treasury_curves = treasury_curves
         self.benchmark_returns = benchmark_returns
         self.period_start = period_start
@@ -189,6 +190,15 @@ class TradingEnvironment(object):
     def is_trading_day(self, test_date):
         dt = self.normalize_date(test_date)
         return (dt in self.trading_day_map)
+
+    def next_trading_day(self, test_date):
+        dt = self.normalize_date(test_date)
+        trading_days = self.trading_day_map.keys()
+        # Find leftmost value greater than dt
+        i = bisect.bisect_right(trading_days, dt)
+        if i != len(trading_days):
+            return trading_days[i]
+        return None
 
     def get_benchmark_daily_return(self, test_date):
         date = self.normalize_date(test_date)

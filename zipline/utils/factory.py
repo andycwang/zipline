@@ -77,7 +77,7 @@ Fetching data from Yahoo Finance.
 data msgpacks aren't distribute with source.
 Fetching data from data.treasury.gov
 """.strip()
-        dump_treasury_curves()
+        dump_treasury_curves() # test data needs to be sorted by date now
         fp_tr = get_datafile('treasury_curves.msgpack', "rb")
 
     tr_list = msgpack.loads(fp_tr.read())
